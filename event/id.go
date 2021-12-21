@@ -41,6 +41,23 @@ type IDGenerator interface {
 	New() ID
 }
 
+var defaultIDGenerator = newRandomIDGenerator()
+
+// GetDefaultIDGenerator gets the default event id generator.
+// The initialized default generator is UUID4 generator.
+func GetDefaultIDGenerator() IDGenerator {
+	return defaultIDGenerator
+}
+
+// SetDefaultIDGenerator replaces the default event id generator.
+// It will panic if the input generator is nil.
+func SetDefaultIDGenerator(gen IDGenerator) {
+	if gen == nil {
+		panic("set nil id generator")
+	}
+	defaultIDGenerator = gen
+}
+
 type randomIDGenerator struct {
 	mu         sync.Mutex
 	randSource *mrand.Rand
@@ -50,6 +67,7 @@ func newRandomIDGenerator() IDGenerator {
 	gen := &randomIDGenerator{}
 	var seed int64
 	_ = binary.Read(rand.Reader, binary.LittleEndian, &seed)
+	// nolint:gosec
 	gen.randSource = mrand.New(mrand.NewSource(seed))
 	return gen
 }
