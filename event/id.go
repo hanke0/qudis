@@ -42,15 +42,15 @@ type IDGenerator interface {
 }
 
 type randomIDGenerator struct {
-	mu sync.Mutex
-	r  *mrand.Rand
+	mu         sync.Mutex
+	randSource *mrand.Rand
 }
 
 func newRandomIDGenerator() IDGenerator {
 	gen := &randomIDGenerator{}
 	var seed int64
 	_ = binary.Read(rand.Reader, binary.LittleEndian, &seed)
-	gen.r = mrand.New(mrand.NewSource(seed))
+	gen.randSource = mrand.New(mrand.NewSource(seed))
 	return gen
 }
 
@@ -61,7 +61,10 @@ func (r *randomIDGenerator) New() (id ID) {
 
 	_, err := rand.Read(id[:])
 	if err != nil {
-		r.r.Read(id[:])
+		r.randSource.Read(id[:])
 	}
+	// Match UUID4 specification.
+	id[6] = (id[6] & 0x0f) | 0x40 // Version 4
+	id[8] = (id[8] & 0x3f) | 0x80 // Variant is 10
 	return
 }
