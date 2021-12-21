@@ -33,6 +33,17 @@ test:
 fmt:
 	$(GOFMT) -w $(GOFILES)
 
+.PHONE: header
+header:
+	sed -e 's#^#// #' license.txt | sed -E 's/[ '$$'\t'']+$$//' >/tmp/go-license.txt;\
+	export LICENSELEN=`wc -l /tmp/go-license.txt | cut -f1 -d ' '`; \
+	for x in $(GOFILES); do \
+		head $$x | grep -E '^package' >/dev/null || ( tail -n+$$(( $$LICENSELEN+1 )) $$x >/tmp/go-license; \
+		mv /tmp/go-license $$x; echo "Remove header $$x" ); \
+		head -$$LICENSELEN $$x | diff /tmp/go-license.txt - >/dev/null || ( cat /tmp/go-license.txt $$x > /tmp/go-license;\
+		mv /tmp/go-license $$x; echo "Add header $$x" ) \
+	done ;\
+
 .PHONY: fmt-check
 fmt-check:
 	@diff=$$($(GOFMT) -d $(GOFILES)); \
