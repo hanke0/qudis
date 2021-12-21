@@ -26,8 +26,6 @@ import (
 // ID is a unique identity of a event.
 type ID [16]byte
 
-type TraceID [16]byte
-
 var nilID ID
 var _ json.Marshaler = nilID
 
