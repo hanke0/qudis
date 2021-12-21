@@ -1,5 +1,6 @@
 GO ?= go
 GOFMT ?= gofmt "-s"
+GOCILINT ?= golangci-lint
 GO_VERSION=$(shell $(GO) version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
 PACKAGES ?= $(shell $(GO) list ./...)
 VETPACKAGES ?= $(shell $(GO) list ./... | grep -v /examples/)
@@ -58,10 +59,7 @@ vet:
 
 .PHONY: lint
 lint:
-	@hash golint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u golang.org/x/lint/golint; \
-	fi
-	for PKG in $(PACKAGES); do golint -set_exit_status $$PKG || exit 1; done;
+	$(GOCILINT) run
 
 .PHONY: misspell-check
 misspell-check:

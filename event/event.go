@@ -33,13 +33,11 @@ type event struct {
 	body   []byte
 }
 
-var nilBody = []byte{}
-
+// New gives a new event with nil body and a valid event id.
 func New() Event {
 	e := event{
 		id:     GetDefaultIDGenerator().New(),
 		header: make(Header),
-		body:   nilBody,
 	}
 	return &e
 }
